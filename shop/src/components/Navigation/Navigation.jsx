@@ -2,6 +2,8 @@ import React from "react";
 import Wishlist from "../common/Wishlist";
 import AccountIcon from "../common/AccountIcon";
 import CartIcon from "../common/CartIcon";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import "./Navigation.css";
 
 const Navigation = () => {
   return (
@@ -17,19 +19,36 @@ const Navigation = () => {
         {/* Nav items */}
         <ul className=" flex gap-14">
           <li>
-            <a href="/">Shop</a>
+            <NavLink
+              to="/"
+              className={({ isActive }) => (isActive ? "active-link" : "")}
+            >
+              Shop
+            </NavLink>
           </li>
-
           <li>
-            <a href="/mens"> Men</a>
+            <NavLink
+              to="/men"
+              className={({ isActive }) => (isActive ? "active-link" : "")}
+            >
+              Men
+            </NavLink>
           </li>
-
           <li>
-            <a href="/womens"> Women</a>
+            <NavLink
+              to="/women"
+              className={({ isActive }) => (isActive ? "active-link" : "")}
+            >
+              Women
+            </NavLink>
           </li>
-
           <li>
-            <a href="/kids"> Kids</a>
+            <NavLink
+              to="/kids"
+              className={({ isActive }) => (isActive ? "active-link" : "")}
+            >
+              Kids
+            </NavLink>
           </li>
         </ul>
       </div>
@@ -66,9 +85,9 @@ const Navigation = () => {
             </button>
           </li>
           <li>
-            <a href="/cart-items">
+            <Link to="/cart-items">
               <CartIcon />
-            </a>
+            </Link>
           </li>
         </ul>
       </div>
