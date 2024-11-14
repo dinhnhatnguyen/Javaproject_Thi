@@ -14,7 +14,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/women",
-        element: <ProductListPage />,
+        element: <ProductListPage categoryType={"WOMEN"} />,
       },
     ],
   },
