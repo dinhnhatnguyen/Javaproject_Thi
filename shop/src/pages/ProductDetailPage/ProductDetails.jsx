@@ -45,6 +45,12 @@ const ProductDetails = () => {
       : product?.thumbnail
   );
 
+  const productListItems = useMemo(() => {
+    return content?.products?.filter(
+      (item) => item?.type_id === product?.type_id
+    );
+  }, [product]);
+
   const productCategory = useMemo(() => {
     return categories?.find(
       (category) => category?.id === product?.category_id
@@ -192,13 +198,18 @@ const ProductDetails = () => {
       </div>
       {/* Product Description */}
 
+      <SectionHeading title={"Product Description"} />
+      <div className="md:w-[50%] w-full p-2">
+        <p className="px-8">{product?.description}</p>
+      </div>
+
       <SectionHeading title={"Similar Products"} />
       <div className="flex px-10">
         <div className="pt-4 grid grid-cols-1 lg:grid-cols-4 md:grid-cols-3 gap-8 px-2 pb-10">
-          {similarProduct?.map((item, index) => (
+          {productListItems?.map((item, index) => (
             <ProductCard key={index} {...item} />
           ))}
-          {!similarProduct?.length && <p>No Products Found!</p>}
+          {!productListItems?.length && <p>No Products Found!</p>}
         </div>
       </div>
     </>
