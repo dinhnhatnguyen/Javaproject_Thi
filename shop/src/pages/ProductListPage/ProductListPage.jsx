@@ -1,17 +1,33 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import content from "../../data/content.json";
 import FilterIcon from "../../components/common/FilterIcon";
 import Categories from "../../components/Filters/Categories";
 import PriceFilter from "../../components/Filters/PriceFilter";
 import ColorsFilter from "../../components/Filters/ColorsFilter";
 import SizeFilter from "../../components/Filters/SizeFilter";
+import ProductCard from "./ProductCard";
+import { useSelector } from "react-redux";
 
 const categories = content?.categories;
 
 const ProductListPage = ({ categoryType }) => {
+  const categoryData = useSelector((state) => state?.categoryState?.categories);
+
   const categoryContent = useMemo(() => {
     return categories?.find((category) => category.code === categoryType);
   }, [categoryType]);
+
+  const productListItems = useMemo(() => {
+    return content?.products?.filter(
+      (product) => product?.category_id === categoryContent?.id
+    );
+  }, [categoryContent]);
+
+  const category = useMemo(() => {
+    return categoryData?.find((element) => element?.code === categoryType);
+  }, [categoryData, categoryType]);
+
+  const [products, setProducts] = useState([]);
   return (
     <div>
       <div className=" flex ">
@@ -36,7 +52,19 @@ const ProductListPage = ({ categoryType }) => {
           {/* Sizes */}
           <SizeFilter sizes={categoryContent?.meta_data?.sizes} />
         </div>
-        <div>{/* Products */}</div>
+        <div className="p-[15px]">
+          <p className="text-black text-lg">{categoryContent.description}</p>
+          {/* Products */}
+          <div className="pt-4 grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-8 px-2">
+            {productListItems?.map((item, index) => (
+              <ProductCard
+                key={item?.id + "_" + index}
+                {...item}
+                title={item?.name}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
