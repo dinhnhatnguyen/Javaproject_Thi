@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useLoaderData, useParams } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 import Breadcrumb from "../../components/Breadcrumb/Breadcrumb";
 import content from "../../data/content.json";
 import Rating from "../../components/Rating/Rating";
@@ -35,7 +35,7 @@ const ProductDetails = () => {
   const { product } = useLoaderData();
   const [breadCrumbLinks, setBreadCrumbLink] = useState([]);
   const [selecteSize, setSelectedSize] = useState("");
-  const [similarProduct, setSimilarProducts] = useState([]);
+
   const [error, setError] = useState("");
 
   // const [image, setImage] = useState(product?.images[0] ?? product?.thumbnail);
@@ -45,9 +45,9 @@ const ProductDetails = () => {
       : product?.thumbnail
   );
 
-  const productListItems = useMemo(() => {
+  const similarProduct = useMemo(() => {
     return content?.products?.filter(
-      (item) => item?.type_id === product?.type_id
+      (item) => item?.type_id === product?.type_id && item?.id !== product?.id
     );
   }, [product]);
 
@@ -206,10 +206,10 @@ const ProductDetails = () => {
       <SectionHeading title={"Similar Products"} />
       <div className="flex px-10">
         <div className="pt-4 grid grid-cols-1 lg:grid-cols-4 md:grid-cols-3 gap-8 px-2 pb-10">
-          {productListItems?.map((item, index) => (
+          {similarProduct?.map((item, index) => (
             <ProductCard key={index} {...item} />
           ))}
-          {!productListItems?.length && <p>No Products Found!</p>}
+          {!similarProduct?.length && <p>No Products Found!</p>}
         </div>
       </div>
     </>
