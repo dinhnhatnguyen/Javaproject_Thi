@@ -1,8 +1,10 @@
 package com.nhatNguyen.Shop.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
@@ -11,10 +13,10 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "products")
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
 public class Product {
 
     @Id
@@ -33,6 +35,9 @@ public class Product {
     @Column(nullable = false)
     private String brand;
 
+    @Column
+    private Float rating;
+
     @Column(nullable = false)
     private boolean isNewArrival;
 
@@ -44,12 +49,21 @@ public class Product {
     @Temporal(TemporalType.TIMESTAMP)
     private java.util.Date updatedAt;
 
-    // CascadeType.all có nghĩa là tất cả các hành động thực hiện
-    // trên thực thể hiện tại (như persist, merge, remove, v.v.)
-    // cũng sẽ được áp dụng lên các thực thể liên quan.
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
     private List<ProductVariant> productVariants;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id",nullable = false)
+    @JsonIgnore
+    private Category category;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoryType_id",nullable = false)
+    @JsonIgnore
+    private CategoryType categoryType;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<Resources> resources;
 
     @PrePersist
     protected void onCreate() {
@@ -61,6 +75,4 @@ public class Product {
     protected void onUpdate() {
         updatedAt = new java.util.Date();
     }
-
-
 }

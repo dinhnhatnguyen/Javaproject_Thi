@@ -2,22 +2,38 @@ package com.nhatNguyen.Shop.controllers;
 
 
 import com.nhatNguyen.Shop.dto.ProductDto;
+import com.nhatNguyen.Shop.entities.Product;
+import com.nhatNguyen.Shop.services.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
+
 import java.util.List;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/api/products")
 public class ProductController {
 
-    @GetMapping
-    public List<ProductDto> getAllProducts() {
-        return Collections.EMPTY_LIST;
+    private ProductService productService;
+
+    @Autowired
+    public ProductController(ProductService productService) {
+        this.productService = productService;
     }
 
-    @PostMapping
-    public ProductDto createProduct(@RequestBody ProductDto product) {
-        return null;
+    @GetMapping
+    public ResponseEntity<List<Product>> getAllProducts(@RequestParam(required = false, name = "categoryId", value = "categoryId") UUID categoryId, @RequestParam(required = false, name = "typeId", value = "typeId") UUID typeId) {
+        List<Product> productList = productService.getAllProducts(categoryId, typeId);
+        return new ResponseEntity<>(productList, HttpStatus.OK);
     }
- }
+
+    //   create Product
+    @PostMapping
+    public ResponseEntity<Product> createProduct(@RequestBody ProductDto productDto) {
+        Product product = productService.addProduct(productDto);
+        return new ResponseEntity<>(product, HttpStatus.CREATED);
+    }
+}

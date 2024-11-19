@@ -7,16 +7,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "categories")
+@Table(name = "product_resources")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Category {
+public class Resources {
 
     @Id
     @GeneratedValue
@@ -26,12 +25,16 @@ public class Category {
     private String name;
 
     @Column(nullable = false)
-    private String code;
+    private String url;
 
     @Column(nullable = false)
-    private String description;
+    private Boolean isPrimary;
 
-    @OneToMany(mappedBy = "category",cascade = CascadeType.ALL)
-    private List<CategoryType> categoryTypes;
+    @Column(nullable = false)
+    private String type;
 
+    @ManyToOne
+    @JoinColumn(name = "product_id",nullable = false)
+    @JsonIgnore
+    private Product product;
 }
