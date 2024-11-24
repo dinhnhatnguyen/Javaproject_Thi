@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
@@ -40,6 +41,9 @@ public class Product {
 
     @Column(nullable = false)
     private boolean isNewArrival;
+
+    @Column(nullable = false,unique = true)
+    private String slug;
 
     @Column(nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)

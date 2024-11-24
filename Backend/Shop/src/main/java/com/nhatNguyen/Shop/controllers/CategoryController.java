@@ -13,6 +13,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/category")
+@CrossOrigin
 public class CategoryController {
 
     @Autowired
@@ -52,3 +53,4 @@ public class CategoryController {
         return ResponseEntity.ok().build();
     }
 }
+
