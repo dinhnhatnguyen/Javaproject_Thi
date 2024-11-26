@@ -5,7 +5,6 @@ import com.nhatNguyen.Shop.auth.dto.RegistrationResponse;
 import com.nhatNguyen.Shop.auth.entities.User;
 import com.nhatNguyen.Shop.auth.helper.VerificationCodeGenerator;
 import com.nhatNguyen.Shop.auth.repositories.UserDetailRepository;
-import org.hibernate.generator.internal.VersionGeneration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,6 +21,9 @@ public class RegistrationService {
 
     @Autowired
     private AuthorityService authorityService;
+
+    @Autowired
+    private EmailService emailService;
 
     public RegistrationResponse createUser(RegistrationRequest request) {
 
@@ -53,7 +55,7 @@ public class RegistrationService {
             userDetailRepository.save(user);
 
             // Call method to send confirm Email
-
+            emailService.sendMail(user);
 
             return RegistrationResponse.builder()
                     .code(200)
@@ -66,5 +68,11 @@ public class RegistrationService {
             throw new ServerErrorException(e.getMessage(),e.getCause());
         }
 
+    }
+
+    public void verifyUser(String userName) {
+        User user= userDetailRepository.findByEmail(userName);
+        user.setEnabled(true);
+        userDetailRepository.save(user);
     }
 }

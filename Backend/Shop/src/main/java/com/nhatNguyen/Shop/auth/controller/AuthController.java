@@ -1,12 +1,13 @@
 package com.nhatNguyen.Shop.auth.controller;
 
+import com.nhatNguyen.Shop.auth.config.JWTTokenHelper;
 import com.nhatNguyen.Shop.auth.dto.LoginRequest;
 import com.nhatNguyen.Shop.auth.dto.RegistrationRequest;
 import com.nhatNguyen.Shop.auth.dto.RegistrationResponse;
 import com.nhatNguyen.Shop.auth.dto.UserToken;
 import com.nhatNguyen.Shop.auth.entities.User;
 import com.nhatNguyen.Shop.auth.services.RegistrationService;
-import io.jsonwebtoken.Jwts;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +15,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @CrossOrigin
@@ -26,9 +30,11 @@ public class AuthController {
     @Autowired
     RegistrationService registrationService;
 
+    @Autowired
+    UserDetailsService userDetailsService;
 
-
-
+    @Autowired
+    JWTTokenHelper jwtTokenHelper;
 
     @PostMapping("/login")
     public ResponseEntity<UserToken> login(@RequestBody LoginRequest loginRequest) {
@@ -45,7 +51,7 @@ public class AuthController {
                 }
 
                 // if login success -> Generate JWT Token
-                String token = null;
+                String token =jwtTokenHelper.generateToken(user.getEmail());
 
                 // Set token for user
                 UserToken userToken = UserToken.builder().token(token).build();
@@ -64,5 +70,19 @@ public class AuthController {
 
         return new ResponseEntity<>(registrationResponse,
                 registrationResponse.getCode() == 200 ? HttpStatus.OK: HttpStatus.BAD_REQUEST);
+    }
+
+
+    @PostMapping("/verify")
+    public ResponseEntity<?> verifyCode(@RequestBody Map<String,String> map){
+        String userName = map.get("userName");
+        String code = map.get("code");
+
+        User user= (User) userDetailsService.loadUserByUsername(userName);
+        if(null != user && user.getVerificationCode().equals(code)){
+            registrationService.verifyUser(userName);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }
