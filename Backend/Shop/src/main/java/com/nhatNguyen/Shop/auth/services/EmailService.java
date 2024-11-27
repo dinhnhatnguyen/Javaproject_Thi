@@ -17,7 +17,7 @@ public class EmailService {
 
     public String sendMail(User user){
         String subject = "Verify your email";
-        String senderName = "Shop";
+        String senderName = "Nhatnguyen Shop";
         String mailContent = "Hello " + user.getUsername() + ",\n";
         mailContent += "Your verification code is: " + user.getVerificationCode() + "\n";
         mailContent += "Please enter this code to verify your email.";
