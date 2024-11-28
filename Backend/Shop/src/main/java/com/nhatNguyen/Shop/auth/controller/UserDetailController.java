@@ -22,11 +22,12 @@ public class UserDetailController {
     @Autowired
     private UserDetailsService userDetailsService;
 
+
     @GetMapping("/profile")
-    public ResponseEntity<?> getUserProfile(Principal principal) {
+    public ResponseEntity<UserDetailsDto> getUserProfile(Principal principal){
         User user = (User) userDetailsService.loadUserByUsername(principal.getName());
 
-        if(null == user) {
+        if(null == user){
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
@@ -36,6 +37,7 @@ public class UserDetailController {
                 .email(user.getEmail())
                 .id(user.getId())
                 .phoneNumber(user.getPhoneNumber())
+                .addressList(user.getAddressList())
                 .authorityList(user.getAuthorities().toArray()).build();
 
         return new ResponseEntity<>(userDetailsDto, HttpStatus.OK);

@@ -7,6 +7,7 @@ import com.nhatNguyen.Shop.exceptions.ResourceNotFoundEx;
 import com.nhatNguyen.Shop.mapper.ProductMapper;
 import com.nhatNguyen.Shop.repositories.ProductRepository;
 import com.nhatNguyen.Shop.specification.ProductSpecification;
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -80,4 +81,11 @@ public class ProductServiceImpl implements ProductService{
         Product product= productRepository.findById(productDto.getId()).orElseThrow(()-> new ResourceNotFoundEx("Product Not Found!"));
         return productRepository.save(productMapper.mapToProductEntity(productDto));
     }
+
+
+    @Override
+    public Product fetchProductById(UUID id) throws Exception {
+        return productRepository.findById(id).orElseThrow(BadRequestException::new);
+    }
+
 }
