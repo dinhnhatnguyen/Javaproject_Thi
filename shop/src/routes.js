@@ -18,6 +18,7 @@ import PaymentFailedPage from "./pages/PaymentFailed/PaymentFailedPage";
 import Profile from "./pages/Account/Profile";
 import Orders from "./pages/Account/Orders";
 import Settings from "./pages/Account/Settings";
+import AdminPanel from "./pages/AdminPanel/AdminPanel";
 
 export const router = createBrowserRouter([
   {
@@ -128,6 +129,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <PaymentFailedPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/admin/*",
+    element: (
+      <ProtectedRoute>
+        <AdminPanel />
       </ProtectedRoute>
     ),
   },
