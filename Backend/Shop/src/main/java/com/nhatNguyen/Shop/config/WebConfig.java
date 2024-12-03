@@ -14,10 +14,15 @@ public class WebConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:3000") // Thay bằng URL của ứng dụng React
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedOrigins(
+                                "http://localhost:3000",  // React frontend
+                                "http://localhost:8080"   // Spring Boot backend
+                        )
+                        .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
-                        .allowCredentials(true);
+                        .exposedHeaders("Authorization", "Content-Type")
+                        .allowCredentials(true)
+                        .maxAge(3600);  // Cache preflight request for 1 hour
             }
         };
     }

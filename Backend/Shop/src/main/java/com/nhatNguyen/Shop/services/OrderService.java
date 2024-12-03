@@ -26,15 +26,10 @@ public class OrderService {
     @Autowired
     ProductService productService;
 
-
     @Transactional
-    public Order createOrder(OrderRequest orderRequest, Principal principal) throws Exception {
+    public OrderResponse createOrder(OrderRequest orderRequest, Principal principal) throws Exception {
         User user = (User) userDetailsService.loadUserByUsername(principal.getName());
-        Address address = user.getAddressList().stream()
-                .filter(
-                        address1 -> orderRequest.getAddressId()
-                                .equals(address1.getId())).findFirst().orElseThrow(BadRequestException::new
-                );
+        Address address = user.getAddressList().stream().filter(address1 -> orderRequest.getAddressId().equals(address1.getId())).findFirst().orElseThrow(BadRequestException::new);
 
         Order order= Order.builder()
                 .user(user)
@@ -62,16 +57,113 @@ public class OrderService {
         }).toList();
 
         order.setOrderItemList(orderItems);
-        Payment payment = new Payment();
+        Payment payment=new Payment();
         payment.setPaymentStatus(PaymentStatus.PENDING);
         payment.setPaymentDate(new Date());
         payment.setOrder(order);
         payment.setAmount(order.getTotalAmount());
         payment.setPaymentMethod(order.getPaymentMethod());
         order.setPayment(payment);
+        Order savedOrder = orderRepository.save(order);
 
-        return  orderRepository.save(order);
+
+        OrderResponse orderResponse = OrderResponse.builder()
+                .paymentMethod(orderRequest.getPaymentMethod())
+                .orderId(savedOrder.getId())
+                .build();
+        return orderResponse;
     }
 
+//    public Map<String, String> updateStatus(String orderId, String status) {
+//        try {
+//            Order order = orderRepository.findById(UUID.fromString(orderId)).orElseThrow(BadRequestException::new);
+//            Payment payment = order.getPayment();
+//
+//            if (status.equalsIgnoreCase("COMPLETED")) {
+//                payment.setPaymentStatus(PaymentStatus.COMPLETED);
+//                order.setOrderStatus(OrderStatus.PENDING);
+//            } else if (status.equalsIgnoreCase("FAILED")) {
+//                payment.setPaymentStatus(PaymentStatus.FAILED);
+//                order.setOrderStatus(OrderStatus.CANCELLED);
+//            }
+//
+//            orderRepository.save(order);
+//
+//            Map<String, String> map = new HashMap<>();
+//            map.put("orderId", String.valueOf(order.getId()));
+//            map.put("status", payment.getPaymentStatus().toString());
+//            return map;
+//        } catch (Exception e) {
+//            throw new IllegalArgumentException("Order not found");
+//        }
 
+
+//        try {
+//            Order order = orderRepository.findById(UUID.fromString(orderId)).orElseThrow(BadRequestException::new);
+//            Payment payment = order.getPayment();
+//
+//            // Simulate payment methods
+//            if (status.equalsIgnoreCase("COMPLETED")) {
+//                payment.setPaymentStatus(PaymentStatus.COMPLETED);
+//                order.setOrderStatus(OrderStatus.PENDING);
+//            } else if (status.equalsIgnoreCase("FAILED")) {
+//                payment.setPaymentStatus(PaymentStatus.FAILED);
+//                order.setOrderStatus(OrderStatus.CANCELLED);
+//            }
+//
+//            orderRepository.save(order);
+//
+//            Map<String, String> map = new HashMap<>();
+//            map.put("orderId", String.valueOf(order.getId()));
+//            map.put("status", payment.getPaymentStatus().toString());
+//            return map;
+//        } catch (Exception e) {
+//            throw new IllegalArgumentException("Order not found");
+//        }
+//    }
+
+    public Map<String, String> updateStatus(String orderId, String status) {
+        try {
+            // Log để debug
+            System.out.println("Updating order status - OrderId: " + orderId + ", Status: " + status);
+
+            // Validate UUID format
+            UUID orderUUID;
+            try {
+                orderUUID = UUID.fromString(orderId);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid order ID format");
+            }
+
+            // Find order
+            Optional<Order> orderOptional = orderRepository.findById(orderUUID);
+            if (orderOptional.isEmpty()) {
+                throw new IllegalArgumentException("Order not found with ID: " + orderId);
+            }
+
+            Order order = orderOptional.get();
+            Payment payment = order.getPayment();
+
+            if (status.equalsIgnoreCase("COMPLETED")) {
+                payment.setPaymentStatus(PaymentStatus.COMPLETED);
+                order.setOrderStatus(OrderStatus.PENDING);
+            } else if (status.equalsIgnoreCase("FAILED")) {
+                payment.setPaymentStatus(PaymentStatus.FAILED);
+                order.setOrderStatus(OrderStatus.CANCELLED);
+            } else {
+                throw new IllegalArgumentException("Invalid status: " + status);
+            }
+
+            orderRepository.save(order);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("orderId", order.getId().toString());
+            response.put("status", payment.getPaymentStatus().toString());
+            return response;
+        } catch (Exception e) {
+            // Log error details
+            System.err.println("Error updating order status: " + e.getMessage());
+            throw new IllegalArgumentException(e.getMessage());
+        }
+    }
 }

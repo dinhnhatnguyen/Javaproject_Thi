@@ -7,15 +7,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
-@RestController
 @CrossOrigin
+@RestController
 @RequestMapping("/api/user")
 public class UserDetailController {
 
@@ -23,11 +20,14 @@ public class UserDetailController {
     private UserDetailsService userDetailsService;
 
 
+    @CrossOrigin(origins = "http://localhost:3000",
+            allowedHeaders = "*",
+            methods = {RequestMethod.GET, RequestMethod.POST})
     @GetMapping("/profile")
-    public ResponseEntity<UserDetailsDto> getUserProfile(Principal principal){
+    public ResponseEntity<UserDetailsDto> getUserProfile(Principal principal) {
         User user = (User) userDetailsService.loadUserByUsername(principal.getName());
 
-        if(null == user){
+        if (null == user) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 

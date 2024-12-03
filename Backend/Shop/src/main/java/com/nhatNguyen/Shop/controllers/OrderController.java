@@ -26,13 +26,42 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<?> createOrder(@RequestBody OrderRequest orderRequest, Principal principal) throws Exception {
-//        OrderResponse orderResponse = orderService.createOrder(orderRequest,principal);
+        OrderResponse orderResponse = orderService.createOrder(orderRequest, principal);
         //return new ResponseEntity<>(order, HttpStatus.CREATED);
-        Order order = orderService.createOrder(orderRequest, principal);
 
-        return new ResponseEntity<>(order, HttpStatus.OK);
+        return new ResponseEntity<>(orderResponse, HttpStatus.OK);
     }
 
+
+    @PostMapping("/update-payment")
+    public ResponseEntity<?> updatePaymentStatus(@RequestBody Map<String, String> request) {
+        try {
+            // Log request để debug
+            System.out.println("Received payment update request: " + request);
+
+            String paymentIntent = request.get("paymentIntent");
+            String status = request.get("status");
+
+            // Validate input
+            if (paymentIntent == null || paymentIntent.trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "paymentIntent is required"));
+            }
+
+            if (status == null || status.trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "status is required"));
+            }
+
+            Map<String, String> response = orderService.updateStatus(paymentIntent, status);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            System.err.println("Error processing payment update: " + e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
 
 
 }
