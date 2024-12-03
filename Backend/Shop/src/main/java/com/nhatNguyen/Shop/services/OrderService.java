@@ -2,6 +2,8 @@ package com.nhatNguyen.Shop.services;
 
 import com.nhatNguyen.Shop.auth.dto.OrderResponse;
 import com.nhatNguyen.Shop.auth.entities.User;
+import com.nhatNguyen.Shop.dto.OrderDetails;
+import com.nhatNguyen.Shop.dto.OrderItemDetail;
 import com.nhatNguyen.Shop.dto.OrderRequest;
 import com.nhatNguyen.Shop.entities.*;
 import com.nhatNguyen.Shop.repositories.OrderRepository;
@@ -74,53 +76,6 @@ public class OrderService {
         return orderResponse;
     }
 
-//    public Map<String, String> updateStatus(String orderId, String status) {
-//        try {
-//            Order order = orderRepository.findById(UUID.fromString(orderId)).orElseThrow(BadRequestException::new);
-//            Payment payment = order.getPayment();
-//
-//            if (status.equalsIgnoreCase("COMPLETED")) {
-//                payment.setPaymentStatus(PaymentStatus.COMPLETED);
-//                order.setOrderStatus(OrderStatus.PENDING);
-//            } else if (status.equalsIgnoreCase("FAILED")) {
-//                payment.setPaymentStatus(PaymentStatus.FAILED);
-//                order.setOrderStatus(OrderStatus.CANCELLED);
-//            }
-//
-//            orderRepository.save(order);
-//
-//            Map<String, String> map = new HashMap<>();
-//            map.put("orderId", String.valueOf(order.getId()));
-//            map.put("status", payment.getPaymentStatus().toString());
-//            return map;
-//        } catch (Exception e) {
-//            throw new IllegalArgumentException("Order not found");
-//        }
-
-
-//        try {
-//            Order order = orderRepository.findById(UUID.fromString(orderId)).orElseThrow(BadRequestException::new);
-//            Payment payment = order.getPayment();
-//
-//            // Simulate payment methods
-//            if (status.equalsIgnoreCase("COMPLETED")) {
-//                payment.setPaymentStatus(PaymentStatus.COMPLETED);
-//                order.setOrderStatus(OrderStatus.PENDING);
-//            } else if (status.equalsIgnoreCase("FAILED")) {
-//                payment.setPaymentStatus(PaymentStatus.FAILED);
-//                order.setOrderStatus(OrderStatus.CANCELLED);
-//            }
-//
-//            orderRepository.save(order);
-//
-//            Map<String, String> map = new HashMap<>();
-//            map.put("orderId", String.valueOf(order.getId()));
-//            map.put("status", payment.getPaymentStatus().toString());
-//            return map;
-//        } catch (Exception e) {
-//            throw new IllegalArgumentException("Order not found");
-//        }
-//    }
 
     public Map<String, String> updateStatus(String orderId, String status) {
         try {
@@ -165,5 +120,50 @@ public class OrderService {
             System.err.println("Error updating order status: " + e.getMessage());
             throw new IllegalArgumentException(e.getMessage());
         }
+    }
+
+    public List<OrderDetails> getOrdersByUser(String name) {
+        User user = (User) userDetailsService.loadUserByUsername(name);
+        List<Order> orders = orderRepository.findByUser(user);
+        return orders.stream().map(order -> {
+            return OrderDetails.builder()
+                    .id(order.getId())
+                    .orderDate(order.getOrderDate())
+                    .orderStatus(order.getOrderStatus())
+                    .shipmentNumber(order.getShipmentTrackingNumber())
+                    .address(order.getAddress())
+                    .totalAmount(order.getTotalAmount())
+                    .orderItemList(getItemDetails(order.getOrderItemList()))
+                    .expectedDeliveryDate(order.getExpectedDeliveryDate())
+                    .build();
+        }).toList();
+
+    }
+
+    private List<OrderItemDetail> getItemDetails(List<OrderItem> orderItemList) {
+
+        return orderItemList.stream().map(orderItem -> {
+            return OrderItemDetail.builder()
+                    .id(orderItem.getId())
+                    .itemPrice(orderItem.getItemPrice())
+                    .product(orderItem.getProduct())
+                    .productVariantId(orderItem.getProductVariantId())
+                    .quantity(orderItem.getQuantity())
+                    .build();
+        }).toList();
+    }
+
+    public void cancelOrder(UUID id, Principal principal) {
+        User user = (User) userDetailsService.loadUserByUsername(principal.getName());
+        Order order = orderRepository.findById(id).get();
+        if(null != order && order.getUser().getId().equals(user.getId())){
+            order.setOrderStatus(OrderStatus.CANCELLED);
+            //logic to refund amount
+            orderRepository.save(order);
+        }
+        else{
+            new RuntimeException("Invalid request");
+        }
+
     }
 }
