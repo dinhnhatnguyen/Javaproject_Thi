@@ -102,7 +102,16 @@ public class ProductMapper {
     }
 
     private String getProductThumbnail(List<Resources> resources) {
-        return resources.stream().filter(Resources::getIsPrimary).findFirst().orElse(null).getUrl();
+//        return resources.stream().filter(Resources::getIsPrimary).findFirst().orElse(null).getUrl();
+        if (resources == null || resources.isEmpty()) {
+            return null; // hoặc trả về một URL mặc định
+        }
+
+        return resources.stream()
+                .filter(resource -> resource != null && Boolean.TRUE.equals(resource.getIsPrimary()))
+                .findFirst()
+                .map(Resources::getUrl)
+                .orElse(null);
     }
 
     public List<ProductVariantDto> mapProductVariantListToDto(List<ProductVariant> productVariants) {

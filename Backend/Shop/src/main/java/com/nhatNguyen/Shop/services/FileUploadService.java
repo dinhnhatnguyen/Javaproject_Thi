@@ -1,56 +1,62 @@
 package com.nhatNguyen.Shop.services;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.IOException;
+import java.util.UUID;
 
 @Service
-public class FileUploadService {
+@RequiredArgsConstructor
+public class FileUploadService implements FileService {
 
-//    @Value("${FILE_ZONE}")
-//    private String storageZone;
-//
-//    @Value("${FILE_UPLOAD_API_KEY}")
-//    private String fileUploadKey;
-//
-//    @Value("${FILE_UPLOAD_HOST_URL}")
-//    private String fileHostName;
-//
-//    public int uploadFile(MultipartFile file,String fileName){
-//
-//        try {
-//            String urlString =  fileHostName+"/"+storageZone+"/"+fileName;
-//            URL url = new URL(urlString);
-//            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-//            connection.setRequestMethod("PUT");
-//            connection.setRequestProperty("AccessKey",fileUploadKey);
-//            connection.setRequestProperty("Content-Type", "application/octet-stream");
-//            connection.setDoOutput(true);
-//
-//
-//            long fileSize = file.getSize();
-//
-//            try (BufferedInputStream inputStream = new BufferedInputStream(file.getInputStream());
-//                 BufferedOutputStream outputStream = new BufferedOutputStream(connection.getOutputStream())) {
-//
-//                byte[] buffer = new byte[8192];
-//                int bytesRead;
-//                while ((bytesRead = inputStream.read(buffer)) != -1) {
-//                    outputStream.write(buffer, 0, bytesRead);
-//                }
-//            }
-//
-//            int responseCode = connection.getResponseCode();
-//            String responseMsg = connection.getResponseMessage();
-//            return responseCode;
-//        }
-//        catch (Exception e){
-//            return 500;
-//        }
-//    }
+    private static final Logger logger = LoggerFactory.getLogger(FileUploadService.class);
+
+//    @Value("${cloud.aws.bucket.name:nhatnguyenshop}")
+    private String bucketName = "titokclonephp";
+
+    private final AmazonS3 amazonS3;
+
+    @Override
+    public String uploadFile(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File is empty or null");
+        }
+
+        try {
+            String fileType = StringUtils.getFilenameExtension(file.getOriginalFilename());
+            String key = UUID.randomUUID().toString() + "." + fileType;
+
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(file.getSize());
+            metadata.setContentType(file.getContentType());
+
+            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, key, file.getInputStream(), metadata)
+                    .withCannedAcl(CannedAccessControlList.PublicRead);
+
+            amazonS3.putObject(putObjectRequest);
+
+            return amazonS3.getUrl(bucketName, key).toString();
+
+        } catch (IOException e) {
+            logger.error("Error while reading file content", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error occurred while reading file content");
+        } catch (Exception e) {
+            logger.error("Error while uploading file to S3", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error occurred while uploading file to S3: " + e.getMessage());
+        }
+    }
 }
