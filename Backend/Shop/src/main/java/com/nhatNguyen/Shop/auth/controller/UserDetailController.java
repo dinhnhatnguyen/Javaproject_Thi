@@ -1,8 +1,11 @@
 package com.nhatNguyen.Shop.auth.controller;
 
+import com.nhatNguyen.Shop.auth.dto.UpdateRequest;
+import com.nhatNguyen.Shop.auth.dto.UpdateResponse;
 import com.nhatNguyen.Shop.auth.dto.UserDetailsDto;
 import com.nhatNguyen.Shop.auth.entities.User;
 
+import com.nhatNguyen.Shop.auth.services.UpdateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +23,8 @@ public class UserDetailController {
     @Autowired
     private UserDetailsService userDetailsService;
 
+    @Autowired
+    private UpdateService updateService;
 
 
 
@@ -48,6 +53,17 @@ public class UserDetailController {
     }
 
 
+    @PutMapping("/profile")
+    public ResponseEntity<UpdateResponse> updateProfile(@RequestBody UpdateRequest updateRequest, Principal principal) {
+        User user = (User) userDetailsService.loadUserByUsername(principal.getName());
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        updateRequest.setEmail(user.getEmail()); // Ensure we update the correct user
+        UpdateResponse response = updateService.UpdateUser(updateRequest);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
 
 }

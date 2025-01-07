@@ -16,7 +16,7 @@ const Navigation = ({ variant = "default" }) => {
       <div className="flex items-center gap-6">
         {/* Logo */}
         <a className="text-3xl text-black font-bold gap-8" href="/">
-          ShopEase
+          NhatNguyenShop
         </a>
       </div>
       {variant === "default" && (

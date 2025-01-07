@@ -8,7 +8,7 @@ import {
   NumberInput,
   ReferenceInput,
   required,
-  SelectField,
+  // SelectField,
   SelectInput,
   SimpleForm,
   SimpleFormIterator,

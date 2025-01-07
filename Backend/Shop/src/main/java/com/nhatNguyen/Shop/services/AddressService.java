@@ -20,8 +20,8 @@ public class AddressService {
     @Autowired
     private AddressRepository addressRepository;
 
-    public Address createAddress(AddressRequest addressRequest, Principal principal) {
-        User user = (User) userDetailsService.loadUserByUsername(principal.getName());
+    public Address createAddress(AddressRequest addressRequest, Principal principal){
+        User user= (User) userDetailsService.loadUserByUsername(principal.getName());
         Address address = Address.builder()
                 .name(addressRequest.getName())
                 .street(addressRequest.getStreet())
@@ -37,5 +37,4 @@ public class AddressService {
     public void deleteAddress(UUID id) {
         addressRepository.deleteById(id);
     }
-
 }

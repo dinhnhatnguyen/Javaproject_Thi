@@ -41,7 +41,9 @@ public class WebSecurityConfig {
             "/api/products",
             "/api/category/**",
             "/api/category",
-            "/login/oauth2/code/*"  // Thêm OAuth2 callback URLs
+//            "/api/address/**",
+//            "/api/address",
+//            "/oauth2/**",
     };
 
 
@@ -87,19 +89,7 @@ public class WebSecurityConfig {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
-//    @Bean
-//    public CorsConfigurationSource corsConfigurationSource() {
-//        CorsConfiguration configuration = new CorsConfiguration();
-//        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
-//        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-//        configuration.setAllowedHeaders(Arrays.asList("*")); // Cho phép tất cả headers
-//        configuration.setExposedHeaders(Arrays.asList("*")); // Expose tất cả headers
-//        configuration.setAllowCredentials(true); // Quan trọng cho việc gửi cookie và authentication headers
-//
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", configuration); // Áp dụng cho tất cả các đường dẫn
-//        return source;
-//    }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

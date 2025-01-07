@@ -67,15 +67,16 @@ export const cancelOrderAPI = async (id) => {
   }
 };
 
-export const updateProfileAPI = async (userData) => {
+export const updateProfileAPI = async (data) => {
+  const url = API_BASE_URL + "/api/user/profile";
   try {
-    const response = await axios.put("/api/user/profile", userData);
-    if (response.data.code === 200) {
-      return response.data;
-    } else {
-      throw new Error(response.data.message);
-    }
-  } catch (error) {
-    throw error;
+    const response = await axios(url, {
+      method: "PUT",
+      data: data,
+      headers: getHeaders(),
+    });
+    return response?.data;
+  } catch (err) {
+    throw new Error(err);
   }
 };

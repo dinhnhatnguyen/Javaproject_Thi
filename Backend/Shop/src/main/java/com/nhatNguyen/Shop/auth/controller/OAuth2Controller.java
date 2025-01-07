@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/oauth2")
 @CrossOrigin
+@RequestMapping("/oauth2")
 public class OAuth2Controller {
 
     @Autowired
