@@ -12,4 +12,5 @@ public class ResourceNotFoundEx extends RuntimeException {
     public ResourceNotFoundEx(String s,Throwable cause){
         super(s,cause);
     }
+
 }

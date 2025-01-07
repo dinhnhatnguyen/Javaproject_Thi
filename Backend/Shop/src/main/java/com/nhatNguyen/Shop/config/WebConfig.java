@@ -15,14 +15,15 @@ public class WebConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins(
-                                "http://localhost:3000",  // React frontend
-                                "http://localhost:8080"   // Spring Boot backend
+                                "http://localhost:3000",
+                                "http://localhost:8080",
+                                "https://accounts.google.com"
                         )
                         .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
-                        .exposedHeaders("Authorization", "Content-Type")
+                        .exposedHeaders("Authorization", "Content-Type", "Content-Range", "Content-Disposition")
                         .allowCredentials(true)
-                        .maxAge(3600);  // Cache preflight request for 1 hour
+                        .maxAge(3600);
             }
         };
     }

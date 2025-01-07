@@ -7,36 +7,28 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.io.IOException;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class FileUploadService implements FileService {
 
+    @Autowired
+    private final AmazonS3 amazonS3;
     private static final Logger logger = LoggerFactory.getLogger(FileUploadService.class);
 
-//    @Value("${cloud.aws.bucket.name:nhatnguyenshop}")
     private String bucketName = "titokclonephp";
 
-    private final AmazonS3 amazonS3;
-
     @Override
-    public String uploadFile(MultipartFile file) {
+    public int uploadFile(MultipartFile file, String fileName) {
         if (file == null || file.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File is empty or null");
+            return 500;
         }
 
         try {
-            String fileType = StringUtils.getFilenameExtension(file.getOriginalFilename());
-            String key = UUID.randomUUID().toString() + "." + fileType;
+            String key = "products/" + fileName;
 
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.getSize());
@@ -47,16 +39,12 @@ public class FileUploadService implements FileService {
 
             amazonS3.putObject(putObjectRequest);
 
-            return amazonS3.getUrl(bucketName, key).toString();
+            // If upload is successful, return 201 (Created)
+            return 201;
 
-        } catch (IOException e) {
-            logger.error("Error while reading file content", e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Error occurred while reading file content");
         } catch (Exception e) {
             logger.error("Error while uploading file to S3", e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Error occurred while uploading file to S3: " + e.getMessage());
+            return 500;
         }
     }
 }

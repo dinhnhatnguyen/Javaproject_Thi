@@ -2,6 +2,7 @@ package com.nhatNguyen.Shop.auth.controller;
 
 import com.nhatNguyen.Shop.auth.dto.UserDetailsDto;
 import com.nhatNguyen.Shop.auth.entities.User;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,8 @@ public class UserDetailController {
 
     @Autowired
     private UserDetailsService userDetailsService;
+
+
 
 
     @CrossOrigin(origins = "http://localhost:3000",
@@ -43,5 +46,8 @@ public class UserDetailController {
         return new ResponseEntity<>(userDetailsDto, HttpStatus.OK);
 
     }
+
+
+
 
 }

@@ -35,7 +35,13 @@ public class WebSecurityConfig {
     private JWTTokenHelper jwtTokenHelper;
 
     private static final String[] publicApis = {
-            "/api/auth/**"
+            "/api/auth/**",
+            "/api/file",  // Thêm endpoint file upload
+            "/api/products/**",
+            "/api/products",
+            "/api/category/**",
+            "/api/category",
+            "/login/oauth2/code/*"  // Thêm OAuth2 callback URLs
     };
 
 
@@ -46,14 +52,20 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests((authorize)-> authorize
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/api/products","/api/category").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/file").authenticated() // Xác định rõ quyền cho file upload
                         .requestMatchers("/oauth2/success").permitAll()
+                        .requestMatchers(publicApis).permitAll()  // Thêm các public APIs
                         .anyRequest().authenticated())
-                .oauth2Login((oauth2login)-> oauth2login.defaultSuccessUrl("/oauth2/success").loginPage("/oauth2/authorization/google"))
-                //.exceptionHandling((exception)-> exception.authenticationEntryPoint(new RESTAuthenticationEntryPoint()))
-                .addFilterBefore(new JWTAuthenticationFilter(jwtTokenHelper,userDetailsService), UsernamePasswordAuthenticationFilter.class);
+                .oauth2Login((oauth2login)-> oauth2login
+                        .defaultSuccessUrl("/oauth2/success")
+                        .loginPage("/oauth2/authorization/google")
+                        .permitAll()) // Thêm permitAll() cho OAuth2
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(new JWTAuthenticationFilter(jwtTokenHelper,userDetailsService),
+                        UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
-
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
@@ -75,18 +87,53 @@ public class WebSecurityConfig {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
-    @Bean
+//    @Bean
+//    public CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+//        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+//        configuration.setAllowedHeaders(Arrays.asList("*")); // Cho phép tất cả headers
+//        configuration.setExposedHeaders(Arrays.asList("*")); // Expose tất cả headers
+//        configuration.setAllowCredentials(true); // Quan trọng cho việc gửi cookie và authentication headers
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration); // Áp dụng cho tất cả các đường dẫn
+//        return source;
+//    }
 
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*")); // Cho phép tất cả headers
-        configuration.setExposedHeaders(Arrays.asList("*")); // Expose tất cả headers
-        configuration.setAllowCredentials(true); // Quan trọng cho việc gửi cookie và authentication headers
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:3000",
+                "http://localhost:8080",
+                "https://accounts.google.com"
+        ));
+        configuration.setAllowedMethods(Arrays.asList(
+                "GET", "POST", "PUT", "PATCH",
+                "DELETE", "OPTIONS", "HEAD"
+        ));
+        configuration.setAllowedHeaders(Arrays.asList(
+                "Authorization",
+                "Content-Type",
+                "X-Requested-With",
+                "Accept",
+                "Origin",
+                "Access-Control-Request-Method",
+                "Access-Control-Request-Headers"
+        ));
+        configuration.setExposedHeaders(Arrays.asList(
+                "Authorization",
+                "Content-Type",
+                "Content-Range",
+                "Content-Disposition",
+                "Access-Control-Allow-Origin"
+        ));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L); // Preflight cache 1 hour
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // Áp dụng cho tất cả các đường dẫn
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 }

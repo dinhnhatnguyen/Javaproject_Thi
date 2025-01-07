@@ -88,4 +88,11 @@ public class ProductServiceImpl implements ProductService{
         return productRepository.findById(id).orElseThrow(BadRequestException::new);
     }
 
+    @Override
+    public void deleteProduct(UUID id) {
+        Product product = productRepository.findById(id).orElseThrow(()-> new ResourceNotFoundEx("Product Not Found!"));
+        productRepository.delete(product);
+    }
+
+
 }

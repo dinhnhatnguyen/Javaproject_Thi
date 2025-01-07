@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/address")
-@CrossOrigin
+//@CrossOrigin
 public class AddressController {
 
     @Autowired

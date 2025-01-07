@@ -46,6 +46,7 @@ public class RegistrationService {
             user.setEnabled(false);
             user.setPassword(passwordEncoder.encode(request.getPassword()));
             user.setProvider("manual");
+            user.setPhoneNumber(request.getPhoneNumber());
 
 
             String code = VerificationCodeGenerator.generateCode();
