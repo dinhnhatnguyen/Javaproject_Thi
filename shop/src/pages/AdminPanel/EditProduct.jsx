@@ -23,11 +23,11 @@ const EditProduct = () => {
         <TextInput label="Description" source="description" />
         <TextInput label="Price" source="price" type="number" />
         <TextInput label="Brand" source="brand" />
-
-        <ImageField source="thumbnail" src="thumbnail" />
-        <ImageInput source="thumbnail" label={"Select Thumbnail"}>
-          <ImageField source="src" title="title" />
-        </ImageInput>
+        {/* 
+            <ImageField source='thumbnail' src='thumbnail'/>
+            <ImageInput source="thumbnail" label={'Select Thumbnail'}>
+              <ImageField source="src" title="title" />
+            </ImageInput> */}
 
         <ArrayInput source="variants" label={"Edit Variants"}>
           <SimpleFormIterator inline>
