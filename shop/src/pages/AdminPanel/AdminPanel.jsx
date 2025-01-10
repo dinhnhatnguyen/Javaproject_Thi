@@ -12,6 +12,8 @@ import CreateProduct from "./CreateProduct";
 import CategoryList from "./Category/CategoryList";
 import CategoryEdit from "./Category/CategoryEdit";
 import { fileUploadAPI } from "../../api/fileUpload";
+import { Cat } from "lucide-react";
+import CategoryTypeInput from "./Category/CategoryTypeInput";
 
 // const CDN_URL = "https://codedev.b-cdn.net";
 const CDN_URL =
@@ -28,7 +30,7 @@ const httpClient = (url, options = {}) => {
   const token = localStorage.getItem("authToken");
   if (!options.headers) options.headers = new Headers();
   options.headers.set("Authorization", `Bearer ${token}`);
-  options.credentials = "include"; // Thêm option này
+  options.credentials = "include";
   return fetchUtils.fetchJson(url, options);
 };
 
@@ -90,6 +92,7 @@ const dataProvider = withLifecycleCallbacks(
         // Upload các ảnh trong productResources trước
         const newProductResList = await Promise.all(
           productResList?.map(async (productResource) => {
+            // kiểm tra có file mới upload không
             if (productResource?.url?.rawFile) {
               const fileName = productResource?.url?.rawFile?.name?.replaceAll(
                 " ",
@@ -134,7 +137,12 @@ export const AdminPanel = () => {
         edit={EditProduct}
         create={CreateProduct}
       />
-      <Resource name="category" list={CategoryList} edit={CategoryEdit} />
+      <Resource
+        name="category"
+        list={CategoryList}
+        edit={CategoryEdit}
+        create={CategoryTypeInput}
+      />
     </Admin>
   );
 };

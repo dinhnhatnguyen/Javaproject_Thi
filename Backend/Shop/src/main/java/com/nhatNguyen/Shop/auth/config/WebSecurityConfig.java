@@ -64,6 +64,7 @@ public class WebSecurityConfig {
                         .permitAll()) // Thêm permitAll() cho OAuth2
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // check jwt trước nếu hợp lệ thì không cần xử lý username/pass, nếu chưa mới dùng JWTAuth để xử lý username pass
                 .addFilterBefore(new JWTAuthenticationFilter(jwtTokenHelper,userDetailsService),
                         UsernamePasswordAuthenticationFilter.class);
         return http.build();
@@ -78,8 +79,8 @@ public class WebSecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager() throws Exception {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        daoAuthenticationProvider.setUserDetailsService(userDetailsService); // load user từ db
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder()); // so sánh pass
 
         return new ProviderManager(daoAuthenticationProvider);
     }

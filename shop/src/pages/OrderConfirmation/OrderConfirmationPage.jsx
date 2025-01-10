@@ -29,7 +29,7 @@ const OrderConfirmationPage = () => {
               Continue Shopping
             </button>
             <button
-              onClick={() => navigate("/orders")}
+              onClick={() => navigate("/account-details/orders")}
               className="px-6 py-2 border border-black rounded-lg hover:bg-gray-100"
             >
               View Orders

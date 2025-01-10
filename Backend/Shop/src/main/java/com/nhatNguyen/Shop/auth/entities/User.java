@@ -27,7 +27,7 @@ public class User implements UserDetails {
 
     private String lastName;
 
-    @JsonIgnore
+    @JsonIgnore // để không hiển thị khi trả kết quả về client
     private String password;
 
     private Date createdOn;

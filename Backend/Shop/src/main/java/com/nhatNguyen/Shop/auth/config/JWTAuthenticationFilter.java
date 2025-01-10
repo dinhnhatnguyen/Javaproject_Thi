@@ -16,9 +16,9 @@ import java.io.IOException;
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
-    private  final JWTTokenHelper jwtTokenHelper;
+    private final JWTTokenHelper jwtTokenHelper;
 
-    public JWTAuthenticationFilter(JWTTokenHelper jwtTokenHelper,UserDetailsService userDetailsService ) {
+    public JWTAuthenticationFilter(JWTTokenHelper jwtTokenHelper, UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
         this.jwtTokenHelper = jwtTokenHelper;
     }
@@ -28,19 +28,28 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
 
-        if(null == authHeader || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
+        // kiểm tra có tồn tại header hay không hoặc có format Bearer  hay không
+        if (null == authHeader || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);// nếu không cho request đi tiếp nếu không có JWT
             return;
         }
-        try{
+        try {
             String authToken = jwtTokenHelper.getToken(request);
-            if(null != authToken){
+            if (null != authToken) {
+                // Lấy username từ token
                 String userName = jwtTokenHelper.getUserNameFromToken(authToken);
-                if(null != userName){
-                    UserDetails userDetails= userDetailsService.loadUserByUsername(userName);
+                if (null != userName) {
+                    // Load thông tin user từ database
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
 
-                    if(jwtTokenHelper.validateToken(authToken,userDetails)) {
-                        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    // Validate token
+                    if (jwtTokenHelper.validateToken(authToken, userDetails)) {
+                        // Tạo authentication object nếu token hợp lệ
+                        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                                userDetails, // thông tin user
+                                null, // thông tin pass (nhưng ở đây không cần lưu nên để null)
+                                userDetails.getAuthorities() // quyền hạn (user, admin)
+                        );
                         authenticationToken.setDetails(new WebAuthenticationDetails(request));
 
                         SecurityContextHolder.getContext().setAuthentication(authenticationToken);

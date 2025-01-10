@@ -120,7 +120,7 @@ const Cart = () => {
 
                       <td>
                         <NumberInput
-                          max={2}
+                          max={5}
                           quantity={item?.quantity}
                           onChangeQuantity={(value) =>
                             onChangeQuantity(

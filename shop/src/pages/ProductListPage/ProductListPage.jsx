@@ -32,10 +32,11 @@ const ProductListPage = ({ categoryType }) => {
   }, [categoryType]);
 
   const category = useMemo(() => {
+    // Search specific Category based on CategoryType prop passed from Route
     return categoryData?.find((element) => element?.code === categoryType);
   }, [categoryData, categoryType]);
 
-  // Fetch initial products
+  // Then use category.id to fetch products
   useEffect(() => {
     dispatch(setLoading(true));
     getAllProducts(category?.id)
@@ -95,9 +96,9 @@ const ProductListPage = ({ categoryType }) => {
     setPriceRange(range);
   };
 
-  const handleColorChange = (colors) => {
-    setSelectedColors(colors);
-  };
+  // const handleColorChange = (colors) => {
+  //   setSelectedColors(colors);
+  // };
 
   const handleSizeChange = (sizes) => {
     setSelectedSizes(sizes);
@@ -127,7 +128,7 @@ const ProductListPage = ({ categoryType }) => {
           {/* Colors */}
           <ColorsFilter
             colors={categoryContent?.meta_data?.colors}
-            onChange={handleColorChange}
+            // onChange={handleColorChange}
           />
           <hr />
           {/* Sizes */}
